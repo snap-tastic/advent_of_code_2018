@@ -2,7 +2,6 @@ use std::env;
 use std::fs;
 use std::collections::HashMap;
 
-#[allow(dead_code)]
 fn day2_part1(contents: &str) {
     let mut two_count = 0;
     let mut three_count = 0;
@@ -47,26 +46,31 @@ fn day2_part1(contents: &str) {
 
 fn day2_part2(contents: &str) {
     let lines_vec : Vec<&str> = contents.lines().collect();
-    let mut single_mistake = false;
+    let mut single_mistake;
 
-    for index in 0..lines_vec.len() {
-        for inner_index in index + 1..lines_vec.len(){
-            let mut combined_chars = lines_vec[index].chars().zip(lines_vec[inner_index].chars()).peekable();
-            for (char1, char2) in combined_chars {
+    'outer: for index in 0..lines_vec.len() {
+        'inner: for inner_index in index + 1..lines_vec.len(){
+            single_mistake = false;
+            let mut combined_chars = lines_vec[index].chars().zip(lines_vec[inner_index].chars());
+            'last: for (char1, char2) in combined_chars {
                 if char1 != char2 {
                     if single_mistake == true {
-                        break;
+                        continue 'inner;
                     }
                     single_mistake = true;
-                }
-                if combined_chars.peek() != None && single_mistake == true{
-                    println!("{} and {}", lines_vec[index], lines_vec[inner_index]);
-
-                }
+                }           
             }
+            print!("{}\n{}\n", lines_vec[index], lines_vec[inner_index]);
+            let winner : String = lines_vec[index].chars().zip(lines_vec[inner_index].chars()).into_iter()
+                                                                                 .filter(| &(char1, char2) | char1 == char2)
+                                                                                 .map(| (c, _) | c)
+                                                                                 .into_iter()
+                                                                                 .collect();
+            println!("Winner Winner {:?}", winner);
+
         }
-        
     }
+
 }
 
 fn main() {
@@ -81,6 +85,6 @@ fn main() {
     let contents = fs::read_to_string(filename)
         .expect("Something went wrong reading the file");
 
-    //day2_part1(&contents);
+    day2_part1(&contents);
     day2_part2(&contents)
 }
